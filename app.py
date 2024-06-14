@@ -57,7 +57,7 @@ class AutoUpdater:
                         print(f"Transferindo")
                         ftp.storbinary(f"STOR {file}", open(f"{local_dir}/{file}", "rb"))
                         files_transferidas.append(file)
-            print(f'Foram atualizados {len(files_transferidas)}')
+            print(f'Foram atualizados {len(files_transferidas)} arquivos')
         else:
             print(f"O diretorio atual não é {str(os.getenv('TARGET_DIR'))}")
             
