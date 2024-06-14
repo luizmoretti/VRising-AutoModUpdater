@@ -10,25 +10,16 @@ import json
 import re
 
 
-#Options for headless mode
-options = Options()
-#options.add_argument("--headless")
-options.add_argument("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36")
-options.add_argument("--start-maximized")
-options.add_argument("--headless=new")
-
 class ThunderModsChekerUpdate:
     def __init__(self, driver, mods_infos):
         self.driver = driver
         self.mods_infos = mods_infos
         
     def thunderchecker(self):
-        
-        self.driver = webdriver.Chrome(options=options)
         self.driver.get('https://thunderstore.io/c/v-rising/')
         self.mods_infos = []
         
-        maincardmenu = self.driver.find_element(By.CSS_SELECTOR,".package-list")
+        maincardmenu = self.driver.find_element(By.CSS_SELECTOR, ".package-list")
 
         def format_date(moddata):
             now = datetime.datetime.now()
@@ -67,7 +58,7 @@ class ThunderModsChekerUpdate:
             months_match = re.match(r"Last updated: (\d+) months ago", moddata)
             if months_match:
                 months = int(months_match.group(1))
-                return (now - datetime.timedelta(weeks=months*4)).strftime("%Y-%m-%d")
+                return (now - datetime.timedelta(weeks=months * 4)).strftime("%Y-%m-%d")
 
             return moddata
         
@@ -109,15 +100,16 @@ class ThunderModsChekerUpdate:
             print("No cards menu found")
         time.sleep(2)
         self.driver.quit()
-        
-        #Make the function return True when finishe executing
-        return False
+    
+def main():
+    options = webdriver.ChromeOptions()
+    options.add_argument("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36")
+    #options.add_argument("--start-maximized")
+    options.add_argument("--headless=new")
+    
+    start = ThunderModsChekerUpdate(webdriver.Chrome(options=options), {})
+    
+    start.thunderchecker()
 
-
-
-
-#Create a istance of the class
-start = ThunderModsChekerUpdate(webdriver.Chrome(options=options), {})
-
-#Method Caller
-start.thunderchecker()
+if __name__ == "__main__":
+    main()

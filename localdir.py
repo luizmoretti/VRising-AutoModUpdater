@@ -6,80 +6,74 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-
 class LocalDirChecker:
-    def get_local_local_dir(local_dir=None):
+    @staticmethod
+    def get_local_dir():
         """
-        Função que lista os arquivos em um local_diretório especificado.
+        Function that lists files in a specified local directory.
 
-        Argumentos:
-            local_diretorio: O caminho do local_diretório que você deseja listar os arquivos.
+        Arguments:
+            local_dir: The path of the directory you want to list the files from.
 
-        Retorna:
-            Uma lista de nomes de arquivos.
-
+        Returns:
+            A list of file names.
         """
-        #variables
+        # Variables
         local_dir = str(os.getenv('LOCAL_DIR'))
 
-
-        # Check if the local_directory exists
+        # Check if the directory exists
         if not os.path.exists(local_dir):
-            raise OSError(f"local_diretorio não encontrado {local_dir}")
+            raise OSError(f"Directory not found: {local_dir}")
 
-        # Returns a list of files
-        files = os.listdir(local_dir)
+        # Use os.scandir for better performance
+        with os.scandir(local_dir) as entries:
+            files_data = []
+            for entry in entries:
+                if entry.is_file():
+                    file_data = {
+                        "name": entry.name,
+                        "timestamp": entry.stat().st_mtime,
+                    }
+                    if entry.name == 'Bloody.Core.dll':
+                        # Remove '.' from Bloody.Core.dll name
+                        file_data['name'] = entry.name.replace('Bloody.Core.dll', 'BloodyCore.dll')
+                        # Print mod that has been renamed from Bloody.Core.dll to BloodyCore.dll
+                        print("Mod Renamed: " + entry.name)
+                    else:
+                        print(f"Nothing to change in {entry.name}\n")
+                        
+                    # Add file data to list
+                    files_data.append(file_data)
 
-        files_data = []
-
-        for file in files:
-            file_data = {
-
-                "name": file,
-                "timestamp": os.path.getmtime(local_dir + "/" + file),
-
-                }
-            if file == 'Bloody.Core.dll':
-                #Exclude '.' from Bloody.Core.dll name
-                file_data['name'] = file.replace('Bloody.Core.dll', 'BloodyCore.dll')
-                #Print mod that has been renamed from Bloody.Core.dll to BloodyCore.dll
-                print("Mod Renamed: " + file)
-            else:
-                print(f"Nothing to changes in " + f"{file}\n")
-                
-            #add file data to list
-            files_data.append(file_data)
-
-        #sorts the list by timestamp
+        # Sort the list by timestamp
         files_data.sort(key=lambda x: x['timestamp'], reverse=True)
 
-        #prints the sorted files
+        # Print the sorted files
         for file_data in files_data:
             print(file_data['name'] + " - " + time.ctime(file_data['timestamp']) + " | Uptodate! ")
 
-        #open json file and compare timestamps of files in local_dir with data in json
+        # Open JSON file and compare timestamps of files in local_dir with data in JSON
         with open("json/mods.json", "r") as f:
             datajson = json.load(f)
-            for file_data in files_data:
-                for mod in datajson:
-                    if file_data['name'] == mod['name']:
-                        if file_data['timestamp'] >= datetime.datetime.strptime(mod['data'], '%Y-%m-%d').timestamp(): 
-                            isupdate = mod['updated'] = False
-                        else:
-                            isupdate = mod['updated'] = True
-
-
-        #If var isupdate is true, update key {updated} in json file with True value and write json file with new value of updated key if false do nothing
-        if isupdate == True:
+        
+        isupdate = False
+        for file_data in files_data:
             for mod in datajson:
-                if mod['name'] == file_data['name']:
-                    mod['updated'] = True
+                if file_data['name'] == mod['name']:
+                    if file_data['timestamp'] >= datetime.datetime.strptime(mod['data'], '%Y-%m-%d').timestamp():
+                        mod['updated'] = False
+                    else:
+                        mod['updated'] = True
+                        isupdate = True
+
+        # If isupdate is True, update the {updated} key in the JSON file with the value True and write the JSON file with the new value of the updated key. Otherwise, do nothing
+        if isupdate:
             with open("json/mods.json", "w") as f:
                 json.dump(datajson, f, indent=4)
-            print("Locallocal_dir Done!")
+            print("LocalDir Done!")
         else:
-            print(f"O {file_data['name']} não precisa ser atualizado")
-            print("Locallocal_dir Done!")
+            print("No updates needed")
+            print("LocalDir Done!")
 
-#Run class
-LocalDirChecker.get_local_local_dir()
+if __name__ == "__main__":
+    LocalDirChecker.get_local_dir()
