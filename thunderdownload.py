@@ -6,24 +6,17 @@ import datetime
 import re
 import logging
 import shutil
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-import requests
-from requests.adapters import HTTPAdapter
-from urllib3.util.retry import Retry
 
 # Configuração de logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', handlers=[logging.StreamHandler(sys.stdout)])
 
 class ThunderModsDownload:
-    def __init__(self, driver, local_dir_return):
+    def __init__(self, driver, download_dir):
         self.driver = driver
-        self.local_dir_return = local_dir_return
-        self.session = self.get_session()
+        self.download_dir = download_dir
 
     @staticmethod
     def driveroptions():
@@ -34,17 +27,11 @@ class ThunderModsDownload:
         # Set default download path
         script_dir = os.path.dirname(os.path.abspath(__file__))
         download_path = os.path.join(script_dir, 'temp')
-        options.add_experimental_option("prefs", { "download.default_directory": download_path })
+        options.add_experimental_option("prefs", {
+            "download.default_directory": download_path,
+            "profile.default_content_settings.popups": 0
+        })
         return options
-
-    @staticmethod
-    def get_session():
-        session = requests.Session()
-        retries = Retry(total=5, backoff_factor=0.1, status_forcelist=[500, 502, 503, 504])
-        adapter = HTTPAdapter(pool_connections=100, pool_maxsize=100, max_retries=retries)
-        session.mount('http://', adapter)
-        session.mount('https://', adapter)
-        return session
 
     def thunderdownload(self):
         with open("json/mods.json", "r") as f:
@@ -52,7 +39,7 @@ class ThunderModsDownload:
 
         self.driver = webdriver.Chrome(options=ThunderModsDownload.driveroptions())
 
-        def update_mod(data):
+        for data in datajson:
             nome_arquivo = data['name']
             link_referencia = data['ref']
             if data['updated']:
@@ -61,45 +48,55 @@ class ThunderModsDownload:
                 time.sleep(1)
 
                 version_element = self.driver.find_element(By.XPATH, '/html/body/div[2]/div[3]/div[2]/div[1]/div[2]/table/tbody/tr[5]/td[2]')
-                version = version_element.text
-                version = re.findall(r'\w+\-\w+\-(\d.+)', version)
-                version = version[0]
-                logging.info(f'Version: {version}')
-                time.sleep(1)
+                version_text = version_element.text
+                logging.info(f'Raw version text for {nome_arquivo}: {version_text}')
+                version_match = re.findall(r'\w+\-\w+\-(\d.+)', version_text)
+                if version_match:
+                    version = version_match[0]
+                    logging.info(f'Parsed version for {nome_arquivo}: {version}')
+                else:
+                    version = "0.0.0"
+                    logging.warning(f'Could not parse version for {nome_arquivo}, setting as {version}')
 
-                download = WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, '/html/body/div[2]/div[3]/div[2]/div[2]/div[2]/a')))
-                download.click()
-                time.sleep(1)
+                download_button = self.driver.find_element(By.XPATH, '/html/body/div[2]/div[3]/div[2]/div[2]/div[2]/a')
+                download_button.click()
 
-                data['updated'] = False
-                data['version'] = version
-                data['data'] = datetime.datetime.now().strftime("%Y-%m-%d")
+                # Esperar até que o download esteja completo
+                timeout = 10  # Tempo máximo de espera em segundos
+                elapsed = 0
 
-                with open("json/mods.json", "w") as f:
-                    json.dump(datajson, f, indent=4)
+                while not any(entry.name.startswith(version_text) and entry.name.endswith('.zip') for entry in os.scandir(self.download_dir)):
+                    time.sleep(2)
+                    elapsed += 2
+                    if elapsed > timeout:
+                        logging.warning(f"Timeout waiting for {version_text} to download.")
+                        break
 
-                timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M")
-                new_json_path = f'json/mods_{timestamp}.json'
-                shutil.copy("json/mods.json", new_json_path)
-                logging.info(f'Created {new_json_path}')
-                logging.info(f'File {nome_arquivo} updated at {datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
+                downloaded_file = next((entry.name for entry in os.scandir(self.download_dir) if entry.name.startswith(version_text) and entry.name.endswith('.zip')), None)
 
-            else:
-                logging.info(f'Module {nome_arquivo} was already updated at {data["data"]}')
+                if downloaded_file:
+                    logging.info(f'Downloaded file found for {version_text}: {downloaded_file}')
+                    # Atualizar a versão e a data do mod
+                    for mod in datajson:
+                        if mod['name'] == nome_arquivo:
+                            mod['version'] = version
+                            mod['data'] = datetime.datetime.now().strftime("%Y-%m-%d")
+                            mod['updated'] = False  # Marcar como atualizado
+                            logging.info(f'Updated {nome_arquivo} to version {version}\n')
+                            break
+                else:
+                    logging.warning(f'Downloaded file not found for {version_text} after waiting.')
 
-        updates_needed = [data for data in datajson if data['updated']]
+        # Atualizar o arquivo JSON após todos os downloads serem concluídos
+        with open("json/mods.json", "w") as f:
+            json.dump(datajson, f, indent=4)
 
-        if updates_needed:
-            with ThreadPoolExecutor(max_workers=4) as executor:
-                futures = [executor.submit(update_mod, data) for data in updates_needed]
-                for future in as_completed(futures):
-                    try:
-                        future.result()
-                    except Exception as e:
-                        logging.error(f'Error updating mod: {e}')
-        else:
-            logging.info('Mods are already uptodate')
+        timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+        new_json_path = f'json/mods_{timestamp}.json'
+        shutil.copy("json/mods.json", new_json_path)
+        logging.info(f'Created {new_json_path}')
 
 # Initiate ThunderModsDownload
-start = ThunderModsDownload(driver=None, local_dir_return=None)
+download_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'temp')
+start = ThunderModsDownload(driver=None, download_dir=download_dir)
 start.thunderdownload()

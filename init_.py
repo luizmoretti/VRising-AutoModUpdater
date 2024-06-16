@@ -5,7 +5,7 @@ import glob
 
 def callHelpers():
     script_paths = [
-        #os.path.join(os.path.dirname(__file__), 'thunderchecker.py'),
+        os.path.join(os.path.dirname(__file__), 'thunderchecker.py'),
         os.path.join(os.path.dirname(__file__), 'localdir.py'),
         os.path.join(os.path.dirname(__file__), 'thunderdownload.py'),
         os.path.join(os.path.dirname(__file__), 'unzipfiles.py')
