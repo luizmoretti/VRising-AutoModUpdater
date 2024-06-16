@@ -29,6 +29,7 @@ jobs:
       run: |
         git config --global user.name 'github-actions[bot]'
         git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        git pull
         git add CHANGELOG.md
         git commit -m "Update changelog"
         git push https://x-access-token:${GH_PAT}@github.com/luizmoretti/VRising-AutoModUpdater.git
