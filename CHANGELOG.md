@@ -18,3 +18,7 @@
 * repo init (ff3b4ca)
 * Initial commit (d9ee33a)
 
+## Changelog - 2024-06-16 17:50:44
+
+* update workflow to use PAT for pushing changes (bf8dc08)
+
