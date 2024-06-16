@@ -26,3 +26,7 @@
 
 * update workflow to use pull first (d24ba4c)
 
+## Changelog - 2024-06-16 17:59:31
+
+* Merge branch 'main' of https://github.com/luizmoretti/VRising-AutoModUpdater (ac413e8)
+
