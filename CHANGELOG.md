@@ -22,3 +22,7 @@
 
 * update workflow to use PAT for pushing changes (bf8dc08)
 
+## Changelog - 2024-06-16 17:55:35
+
+* update workflow to use pull first (d24ba4c)
+
