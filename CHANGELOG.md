@@ -30,3 +30,7 @@
 
 * Merge branch 'main' of https://github.com/luizmoretti/VRising-AutoModUpdater (ac413e8)
 
+## Changelog - 2024-06-18 16:39:16
+
+* Deleting .bat file (6490884)
+
