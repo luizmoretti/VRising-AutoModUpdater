@@ -38,3 +38,7 @@
 
 * Deleting Json (20fbf7d)
 
+## Changelog - 2024-06-20 21:29:28
+
+* Merge branch 'main' of https://github.com/luizmoretti/VRising-AutoModUpdater (64e0a5f)
+
