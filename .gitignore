@@ -13,7 +13,7 @@ __pycache__/
 # Distribution / packaging
 .Python
 build/
-json/
+json/*.json
 develop-eggs/
 dist/
 downloads/
