@@ -42,3 +42,7 @@
 
 * Merge branch 'main' of https://github.com/luizmoretti/VRising-AutoModUpdater (64e0a5f)
 
+## Changelog - 2024-09-06 22:31:35
+
+* File name updates and script adjustments (b573956)
+
