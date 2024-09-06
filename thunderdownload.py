@@ -22,7 +22,7 @@ class ThunderModsDownload:
     def driveroptions():
         options = Options()
         options.add_argument("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36")
-        options.add_argument("--start-maximized")
+        #options.add_argument("--start-maximized")
         options.add_argument("--headless=new")
         # Set default download path
         script_dir = os.path.dirname(os.path.abspath(__file__))

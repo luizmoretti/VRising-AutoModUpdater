@@ -29,36 +29,37 @@ class ThunderModsChekerUpdate:
                 "a minute ago": now - datetime.timedelta(minutes=1),
                 "an hour ago": now - datetime.timedelta(hours=1),
                 "a week ago": now - datetime.timedelta(weeks=1),
+                "a month ago": now - datetime.timedelta(weeks=4),
                 "a year ago": now - datetime.timedelta(weeks=52)
             }
             for key, value in time_mapping.items():
                 if moddata == f"Last updated: {key}":
-                    return value.strftime("%Y-%m-%d")
+                    return value.strftime("%m-%d-%Y")
 
             minutes_match = re.match(r"Last updated: (\d+) minutes ago", moddata)
             if minutes_match:
                 minutes = int(minutes_match.group(1))
-                return (now - datetime.timedelta(minutes=minutes)).strftime("%Y-%m-%d")
+                return (now - datetime.timedelta(minutes=minutes)).strftime("%m-%d-%Y")
 
             hours_match = re.match(r"Last updated: (\d+) hours ago", moddata)
             if hours_match:
                 hours = int(hours_match.group(1))
-                return (now - datetime.timedelta(hours=hours)).strftime("%Y-%m-%d")
+                return (now - datetime.timedelta(hours=hours)).strftime("%m-%d-%Y")
 
             days_match = re.match(r"Last updated: (\d+) days ago", moddata)
             if days_match:
                 days = int(days_match.group(1))
-                return (now - datetime.timedelta(days=days)).strftime("%Y-%m-%d")
+                return (now - datetime.timedelta(days=days)).strftime("%m-%d-%Y")
 
             weeks_match = re.match(r"Last updated: (\d+) weeks ago", moddata)
             if weeks_match:
                 weeks = int(weeks_match.group(1))
-                return (now - datetime.timedelta(weeks=weeks)).strftime("%Y-%m-%d")
+                return (now - datetime.timedelta(weeks=weeks)).strftime("%m-%d-%Y")
 
             months_match = re.match(r"Last updated: (\d+) months ago", moddata)
             if months_match:
                 months = int(months_match.group(1))
-                return (now - datetime.timedelta(weeks=months * 4)).strftime("%Y-%m-%d")
+                return (now - datetime.timedelta(weeks=months * 4)).strftime("%m-%d-%Y")
 
             return moddata
         

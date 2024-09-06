@@ -1,7 +1,7 @@
 import os
 import ftplib
 from dotenv import load_dotenv
-from init_ import callHelpers
+from __init__ import callHelpers
 
 class AutoUpdater:
     def __init__(self):
@@ -9,11 +9,11 @@ class AutoUpdater:
 
     def load_env_variables(self):
         load_dotenv()
-        self.host = os.getenv('HOST')
-        self.username = os.getenv('USERNAME')
-        self.password = os.getenv('PASSWORD')
-        self.local_dir = os.getenv('LOCAL_DIR')
-        self.target_dir = os.getenv('TARGET_DIR')
+        self.host = str(os.getenv('HOST'))
+        self.username = str(os.getenv('USERNAME'))
+        self.password = str(os.getenv('PASSWORD'))
+        self.local_dir = str(os.getenv('LOCAL_DIR'))
+        self.target_dir = str(os.getenv('TARGET_DIR'))
 
     def connect_ftp(self):
         try:

@@ -60,7 +60,7 @@ class LocalDirChecker:
         for file_data in files_data:
             for mod in datajson:
                 if file_data['name'] == mod['name']:
-                    if file_data['timestamp'] >= datetime.datetime.strptime(mod['data'], '%Y-%m-%d').timestamp():
+                    if file_data['timestamp'] >= datetime.datetime.strptime(mod['data'], '%m-%d-%Y').timestamp():
                         mod['updated'] = False
                     else:
                         mod['updated'] = True
