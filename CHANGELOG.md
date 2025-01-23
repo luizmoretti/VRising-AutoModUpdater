@@ -50,3 +50,7 @@
 
 * [Changes] - Just small changes (5da6d74)
 
+## Changelog - 2025-01-23 17:12:36
+
+* refactor: reorganize project structure and improve code quality (98f0bd4)
+
