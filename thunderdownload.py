@@ -10,7 +10,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 
-# Configuração de logging
+#Logging configuration
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', handlers=[logging.StreamHandler(sys.stdout)])
 
 class ThunderModsDownload:
@@ -24,7 +24,8 @@ class ThunderModsDownload:
         options.add_argument("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36")
         #options.add_argument("--start-maximized")
         options.add_argument("--headless=new")
-        # Set default download path
+        
+        #Set default download path
         script_dir = os.path.dirname(os.path.abspath(__file__))
         download_path = os.path.join(script_dir, 'temp')
         options.add_experimental_option("prefs", {
@@ -61,8 +62,8 @@ class ThunderModsDownload:
                 download_button = self.driver.find_element(By.XPATH, '/html/body/div[2]/div[3]/div[2]/div[2]/div[2]/a')
                 download_button.click()
 
-                # Esperar até que o download esteja completo
-                timeout = 10  # Tempo máximo de espera em segundos
+                # Wait until the download is complete
+                timeout = 10  # Maximum waiting time in seconds
                 elapsed = 0
 
                 while not any(entry.name.startswith(version_text) and entry.name.endswith('.zip') for entry in os.scandir(self.download_dir)):
@@ -76,18 +77,19 @@ class ThunderModsDownload:
 
                 if downloaded_file:
                     logging.info(f'Downloaded file found for {version_text}: {downloaded_file}')
-                    # Atualizar a versão e a data do mod
+                    
+                    #Update the version and date of the mod
                     for mod in datajson:
                         if mod['name'] == nome_arquivo:
                             mod['version'] = version
                             mod['data'] = datetime.datetime.now().strftime("%Y-%m-%d")
-                            mod['updated'] = False  # Marcar como atualizado
+                            mod['updated'] = False  #Mark as updated
                             logging.info(f'Updated {nome_arquivo} to version {version}\n')
                             break
                 else:
                     logging.warning(f'Downloaded file not found for {version_text} after waiting.')
 
-        # Atualizar o arquivo JSON após todos os downloads serem concluídos
+        #Update the JSON file after all downloads are complete
         with open("json/mods.json", "w") as f:
             json.dump(datajson, f, indent=4)
 

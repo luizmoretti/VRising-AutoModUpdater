@@ -15,7 +15,7 @@ class UnzipFiles:
     def __init__(self):
         script_dir = os.path.dirname(os.path.abspath(__file__))
         self.temp_folder = os.path.join(script_dir, 'temp')
-        self.local_dir = os.getenv('LOCAL_DIR')
+        self.local_dir = str(os.getenv('LOCAL_DIR'))
         if not self.local_dir:
             logging.error("LOCAL_DIR is not set in the environment variables.")
             raise ValueError("LOCAL_DIR is not set in the environment variables.")

@@ -7,8 +7,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class LocalDirChecker:
-    @staticmethod
-    def get_local_dir():
+    def get_local_dir(self):
         """
         Function that lists files in a specified local directory.
 
@@ -76,4 +75,5 @@ class LocalDirChecker:
             print("LocalDir Done!")
 
 if __name__ == "__main__":
-    LocalDirChecker.get_local_dir()
+    run = LocalDirChecker()
+    run.get_local_dir()
